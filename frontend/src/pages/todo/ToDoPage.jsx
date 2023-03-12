@@ -1,5 +1,7 @@
+import PageTitle from '../../components/PageTitle';
+
 function ToDoPage() {
-    return <h1>To Do Page!</h1>;
+    return <PageTitle>📖 My daily tasks</PageTitle>;
 }
 
 export default ToDoPage;
