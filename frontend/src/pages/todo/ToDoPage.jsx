@@ -1,7 +1,12 @@
 import PageTitle from '../../components/PageTitle';
+import NewTaskForm from '../../components/NewTaskForm';
+import MainSection from '../../components/MainSection';
 
 function ToDoPage() {
-    return <PageTitle>📖 My daily tasks</PageTitle>;
+    return <MainSection>
+        <PageTitle>📖 My daily tasks</PageTitle>
+        <NewTaskForm />
+    </MainSection>;
 }
 
 export default ToDoPage;
