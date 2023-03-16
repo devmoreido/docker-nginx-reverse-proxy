@@ -4,7 +4,7 @@ import reportWebVitals from './reportWebVitals';
 import { ThemeProvider } from 'styled-components';
 import theme from './styles/theme';
 import GlobalStyle from './styles/globalStyle';
-import ToDoPage from './pages/todo/ToDoPage';
+import ToDoPage from './pages/ToDoPage';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
