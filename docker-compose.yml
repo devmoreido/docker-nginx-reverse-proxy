@@ -1,14 +1,26 @@
 version: '3.8'
 
 services:
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    restart: always
+    ports: 
+      - '8080:80'
+    depends_on:
+      - frontend
+    networks:
+      - application
+
   frontend:
-    image: node
+    build: ./frontend
     container_name: frontend
-    working_dir: /app/frontend
-    command: npm start
+    restart: always
     stdin_open: true
     tty: true
-    volumes:
-      - .:/app
-    ports:
-      - 3000:3000
+    networks:
+      - application
+
+networks:
+  application:
+    driver: bridge
