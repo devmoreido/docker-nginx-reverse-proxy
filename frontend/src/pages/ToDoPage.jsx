@@ -5,6 +5,7 @@ import MainSection from '../components/MainSection';
 import HeaderSection from '../components/HeaderSection';
 import ClearAllTasks from '../components/ClearAllTasks'
 import TaskList from '../components/TaskList';
+import apiClient from '../api/api-client';
 
 function ToDoPage() {
     const [tasks, setTasks] = useState([]);
@@ -12,52 +13,61 @@ function ToDoPage() {
 
     useEffect(() => setHasTasks(!!tasks.length), [tasks]);
 
-    const createTask = description => ({
-        id: tasks.length + 1,
-        isDone: false,
-        description
-    });
-
-    const addTask = description => {
-        const newTask = createTask(description);
-        setTasks([...tasks, newTask]);
+    const addTask = async description => {
+        const requestData = { description, isDone: false };
+        const response = await apiClient.sendPost('/', requestData);
+        response.success && setTasks([...tasks, response.task]);
     }
 
-    const editTask = (id, newDescription) => {
+    const editTask = async (id, newDescription) => {
         const setDescriptionWithId = task => task.id !== id
             ? task : { ...task, description: newDescription };
 
-        setTasks(tasks.map(setDescriptionWithId));
+        const requestData = { description: newDescription };
+        const response = await apiClient.sendPatch(`/${id}`, requestData)
+        response.success && setTasks(tasks.map(setDescriptionWithId));
     };
 
-    const resolveTask = id => {
+    const resolveTask = async id => {
+        const getTaskWithId = task => task.id === id;
         const setAsDoneWithId = task => task.id !== id
             ? task : { ...task, isDone: !task.isDone };
 
-        setTasks(tasks.map(setAsDoneWithId));
+        const taskToResolve = tasks.find(getTaskWithId);
+        const requestData = { isDone: !taskToResolve.isDone };
+        const response = await apiClient.sendPatch('/' + id, requestData);
+        response.success && setTasks(tasks.map(setAsDoneWithId));
     }
 
-    const removeTask = id => {
+    const removeTask = async id => {
         const getTaskWithId = task => task.id === id;
+        const getTaskWithoutId = task => task.id !== id;
+
         const taskToRemove = tasks.find(getTaskWithId);
         const confirmMessage = 'Are you sure you want to remove'
             + `the "${taskToRemove.description}" task?`;
 
-        if(!window.confirm(confirmMessage)) return;
-        
-        const getTaskWithoutId = task => task.id !== id;
-        setTasks(tasks.filter(getTaskWithoutId));
+        if (!window.confirm(confirmMessage)) return;
+
+        const response = await apiClient.sendDelete('/' + taskToRemove.id);
+        response.success && setTasks(tasks.filter(getTaskWithoutId));
     }
 
-    const clearAllTasks = () => {
+    const clearAllTasks = async () => {
         const confirmMessage = 'Are you sure you want'
             + 'to remove all tasks?';
 
-        if(!window.confirm(confirmMessage)) return;
+        if (!window.confirm(confirmMessage)) return;
 
-        setTasks([]);
+        const response = await apiClient.sendDelete('/');
+        response.success && setTasks([]);
     }
-    
+
+    useEffect(() => {(async () => {
+        const response = await apiClient.sendGet('/');
+        response.success && setTasks(response.tasks);
+    })()}, []);
+
     return <MainSection>
         <HeaderSection>
             <PageTitle>📖 My daily tasks</PageTitle>
